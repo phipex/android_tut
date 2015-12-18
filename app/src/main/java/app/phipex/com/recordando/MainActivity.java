@@ -34,7 +34,7 @@ public class MainActivity extends Activity {
             public void onTextChanged(CharSequence seq, int start, int before, int count) {
                 //super.onTextChanged(s, start, before, count);
 
-                btnAgregar.setEnabled(seq.toString().trim().isEmpty());//lo que hace es desactivar el boton cuando la secuencia es vacia
+                btnAgregar.setEnabled(!seq.toString().trim().isEmpty());//lo que hace es desactivar el boton cuando la secuencia es vacia
 
             }
         });
