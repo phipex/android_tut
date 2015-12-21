@@ -6,10 +6,13 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 
+import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
+
+import app.phipex.com.recordando.Util.DatabaseHelper;
 import app.phipex.com.recordando.Util.TabsPagerAdapter;
 
 
-public class MainActivity extends Activity  implements ActionBar.TabListener, ViewPager.OnPageChangeListener{
+public class MainActivity extends OrmLiteBaseActivity<DatabaseHelper> implements ActionBar.TabListener, ViewPager.OnPageChangeListener{
 
     private ViewPager viewPager;
     private TabsPagerAdapter adapter;

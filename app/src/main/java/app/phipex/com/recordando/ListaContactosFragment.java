@@ -1,5 +1,6 @@
 package app.phipex.com.recordando;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -14,11 +15,15 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
+
 import java.util.ArrayList;
 
 import app.phipex.com.recordando.Util.ContacListAdapter;
 import app.phipex.com.recordando.Util.ContacReceiver;
 import app.phipex.com.recordando.Util.Contacto;
+import app.phipex.com.recordando.Util.DatabaseHelper;
 
 /**
  * Created by sony vaio on 21/12/2015.
@@ -42,6 +47,15 @@ public class ListaContactosFragment extends Fragment {
     private void inicializaComponentes(View view) {
         contactsListView = (ListView)view.findViewById(R.id.listView);
         adapter = new ContacListAdapter(getActivity(),new ArrayList<Contacto>());
+        OrmLiteBaseActivity<DatabaseHelper> activity = getOrlLiteBaseActivity();
+
+        if (activity != null){
+            DatabaseHelper helper = activity.getHelper();
+            RuntimeExceptionDao<Contacto,Integer> dao = helper.getContactoRuntimeDao();
+            adapter.addAll(dao.queryForAll());
+        }
+
+
         //se configura apara el adapter notifique en el dataser atutomatimente
         adapter.setNotifyOnChange(true);
         contactsListView.setAdapter(adapter);
@@ -57,7 +71,8 @@ public class ListaContactosFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        receiver = new ContacReceiver(adapter);
+
+        receiver = new ContacReceiver(adapter,getOrlLiteBaseActivity());
         getActivity().registerReceiver(receiver, new IntentFilter("listacontactos"));
     }
 
@@ -70,6 +85,14 @@ public class ListaContactosFragment extends Fragment {
         }
         return super.onOptionsItemSelected(item);
 
+    }
+
+    private OrmLiteBaseActivity<DatabaseHelper> getOrlLiteBaseActivity(){
+        Activity activity = getActivity();
+        if (activity instanceof OrmLiteBaseActivity){
+            return (OrmLiteBaseActivity<DatabaseHelper>)activity;
+        }
+        return null;
     }
 
     private void eliminarContacto(MenuItem item) {
