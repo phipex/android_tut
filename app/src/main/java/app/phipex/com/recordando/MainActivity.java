@@ -1,103 +1,85 @@
 package app.phipex.com.recordando;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TabHost;
-import android.widget.Toast;
+import android.support.v4.view.ViewPager;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import app.phipex.com.recordando.Util.Contacto;
-import app.phipex.com.recordando.Util.TextChangeListener;
+import app.phipex.com.recordando.Util.TabsPagerAdapter;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity  implements ActionBar.TabListener, ViewPager.OnPageChangeListener{
 
-    private EditText txtNombre,txtTelefono, txtEmail,txtDireccion;
-    private Button btnAgregar;
+    private ViewPager viewPager;
+    private TabsPagerAdapter adapter;
+    private ActionBar actionBar;
+    //Titulos de la fichas
+    private String[] titulos = {"Crear Contacto","Lista Contactos"};
 
-    private List<Contacto> contactos = new ArrayList<Contacto>();
 
-    private ListView contactoslistView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        inicializarComponentesUI();
+
         inicializarTabs();
 
     }
 
+
+
     private void inicializarTabs() {
-        TabHost tabHost = (TabHost) findViewById(R.id.tabHost);
-        tabHost.setup();
+        viewPager = (ViewPager)findViewById(R.id.pager);
+        actionBar = getActionBar();
+        adapter = new TabsPagerAdapter(getFragmentManager());
+        viewPager.setAdapter(adapter);
+        actionBar.setHomeButtonEnabled(false);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        TabHost.TabSpec spec = tabHost.newTabSpec("tab1");
-        spec.setContent(R.id.tab1);
-        spec.setIndicator("Crear");
-        tabHost.addTab(spec);
+        //agregar las fichas
+        for (String nombre: titulos){
+            ActionBar.Tab tab= actionBar.newTab().setText(nombre);
 
-        spec = tabHost.newTabSpec("tab2");
-        spec.setContent(R.id.tab2);
-        spec.setIndicator("Contactos");
-        tabHost.addTab(spec);
+            tab.setTabListener(this);
+            actionBar.addTab(tab);
+        }
+        viewPager.setOnPageChangeListener(this);
     }
 
-    private void inicializarComponentesUI() {
-        txtNombre = (EditText)findViewById(R.id.cmpNombre);
-        txtTelefono = (EditText)findViewById(R.id.cmpTelefono);
-        txtEmail = (EditText)findViewById(R.id.cmpEmail);
-        txtDireccion = (EditText)findViewById(R.id.cmpDireccion);
-        btnAgregar = (Button) findViewById(R.id.btnAgregar);
-         contactoslistView = (ListView) findViewById(R.id.listView);
-
-        txtNombre.addTextChangedListener(new TextChangeListener() {
-            @Override
-            public void onTextChanged(CharSequence seq, int start, int before, int count) {
-                //super.onTextChanged(s, start, before, count);
-
-                btnAgregar.setEnabled(!seq.toString().trim().isEmpty());//lo que hace es desactivar el boton cuando la secuencia es vacia
-
-            }
-        });
+    //<editor-fold desc="Metodos tab change listener">
+    @Override
+    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+        viewPager.setCurrentItem(tab.getPosition());
     }
 
-
-    public void onClick(View view) {
-        agregagarContacto(
-                txtNombre.getText().toString(),
-                txtTelefono.getText().toString(),
-                txtEmail.getText().toString(),
-                txtDireccion.getText().toString()
-        );
-
-        String mesg = String.format("No ha sido agregado a la lista",txtNombre.getText());
-        Toast.makeText(this, mesg, Toast.LENGTH_SHORT).show();
-        btnAgregar.setEnabled(false);
-        inicializarLista();
-        limpiarCampos();
-    }
-
-    private void inicializarLista() {
+    @Override
+    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
 
     }
 
-    private void agregagarContacto(String nombre, String telefono, String email, String direccion) {
-        contactos.add(new Contacto(nombre, telefono, email, direccion));
+    @Override
+    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+    }
+    //</editor-fold>
+
+
+    //<editor-fold desc="metodos view change listener">
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
     }
 
-    private void limpiarCampos() {
-        txtNombre.getText().clear();
-        txtTelefono.getText().clear();
-        txtEmail.getText().clear();
-        txtDireccion.getText().clear();
-        txtNombre.requestFocus();
+    @Override
+    public void onPageSelected(int position) {
+        actionBar.setSelectedNavigationItem(position);
     }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+    //</editor-fold>
 }
